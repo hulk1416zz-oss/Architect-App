@@ -9,12 +9,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Extract Project Files
+      - name: Find and Extract Zip
         run: |
-          tar -xzf architect-terminal-dist.tar.gz
+          # البحث عن أي ملف مضغوط واستخراجه تلقائياً
+          FILE=$(ls *.tar.gz *.zip | head -n 1)
+          echo "Found file: $FILE"
+          tar -xzf "$FILE" || unzip "$FILE"
+          
+          # إنشاء هيكلية الـ IPA
           mkdir -p Payload/Architect.app
-          # نقل الملفات الناتجة لمجلد التطبيق
-          cp -R . Payload/Architect.app/
+          # نقل كل شيء لمجلد التطبيق لضمان التجميع
+          cp -R . Payload/Architect.app/ || true
           
       - name: Create IPA Package
         run: |
@@ -23,5 +28,5 @@ jobs:
       - name: Upload IPA Result
         uses: actions/upload-artifact@v4
         with:
-          name: My-Architect-App
+          name: Final-Architect-App
           path: Architect.ipa
